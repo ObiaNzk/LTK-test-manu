@@ -8,13 +8,10 @@ import (
 )
 
 func main() {
-	// Initialize service
 	service := internal.NewService()
 
-	// Initialize handler
 	handler := handlers.NewHandler(service)
 
-	// Initialize router
 	router := NewRouter(handler)
 
 	// Start server
