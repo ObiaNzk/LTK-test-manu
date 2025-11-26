@@ -1,7 +1,7 @@
 package api
 
 import (
-	"LTK-test-manu/cmd/api/handlers"
+	"github.com/ObiaNzk/LTK-test-manu/cmd/api/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"LTK-test-manu/internal"
+	"github.com/ObiaNzk/LTK-test-manu/internal"
 	"net/http"
 )
 

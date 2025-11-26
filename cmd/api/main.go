@@ -1,8 +1,8 @@
 package api
 
 import (
-	"LTK-test-manu/cmd/api/handlers"
-	"LTK-test-manu/internal"
+	"github.com/ObiaNzk/LTK-test-manu/cmd/api/handlers"
+	"github.com/ObiaNzk/LTK-test-manu/internal"
 	"log"
 	"net/http"
 )

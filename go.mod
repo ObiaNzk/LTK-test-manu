@@ -1,4 +1,4 @@
-module LTK-test-manu
+module github.com/ObiaNzk/LTK-test-manu
 
 go 1.25.4
 
