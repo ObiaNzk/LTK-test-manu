@@ -6,7 +6,8 @@ import (
 )
 
 type storage interface {
-	StoreEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error)
+	CreateEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error)
+	GetEvents(ctx context.Context) ([]CreateEventResponse, error)
 }
 
 type Service struct {
@@ -40,7 +41,7 @@ func (s *Service) CreateEvent(ctx context.Context, event CreateEventRequest) (Cr
 		return CreateEventResponse{}, fmt.Errorf("title should have more than 100 words: %w", ErrInput)
 	}
 
-	response, err := s.storage.StoreEvent(ctx, event)
+	response, err := s.storage.CreateEvent(ctx, event)
 
 	if err != nil {
 		return CreateEventResponse{}, fmt.Errorf("error creating event: %w", err)

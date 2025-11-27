@@ -16,11 +16,11 @@ func NewStorage() *Storage {
 	return &Storage{}
 }
 
-func (s *Storage) CreateEvent(ctx context.Context, event CreateEventRequest) error {
+func (s *Storage) CreateEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error) {
 	trx, err := s.db.BeginTx(ctx, nil)
 
 	if err != nil {
-		return fmt.Errorf("creating transaction :%w", err)
+		return CreateEventResponse{}, fmt.Errorf("creating transaction :%w", err)
 	}
 
 	defer trx.Rollback()
@@ -32,10 +32,19 @@ func (s *Storage) CreateEvent(ctx context.Context, event CreateEventRequest) err
 	query := "INSERT INTO events (id,title, description, start_time, end_time, created_at) VALUES ($1,$2, $3, $4, $5,$6)"
 
 	if _, err := s.db.ExecContext(ctx, query, id, event.Title, event.Description, event.StartTime, event.EndTime, createdAt); err != nil {
-		return fmt.Errorf("creating event: %w", err)
+		return CreateEventResponse{}, fmt.Errorf("creating event: %w", err)
 	}
 
-	return trx.Commit()
+	result := CreateEventResponse{
+		ID:          id,
+		Title:       event.Title,
+		Description: event.Description,
+		StartTime:   event.StartTime,
+		EndTime:     event.EndTime,
+		CreatedAt:   createdAt,
+	}
+
+	return result, trx.Commit()
 }
 
 func (s *Storage) GetEvents(ctx context.Context) ([]CreateEventResponse, error) {
