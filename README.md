@@ -2,6 +2,9 @@
 
 Events API service built with Go and PostgreSQL.
 
+# Clarification
+Ismael let me finish the project, my last commit was 77cf35629acfeba6abdb27b8d8d7c433dabc1b8a in case you want to review only the live challenge code
+
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) - Required for running PostgreSQL
