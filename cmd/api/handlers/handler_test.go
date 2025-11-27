@@ -343,6 +343,79 @@ func (s *HandlerTestSuite) TestCreateEvent_ServiceErrorGeneric() {
 	require.Contains(s.T(), w.Body.String(), "Error creating event")
 }
 
+func (s *HandlerTestSuite) TestGetEvents_Success() {
+	now := time.Now()
+	expectedEvents := []internal.CreateEventResponse{
+		{
+			ID:          "123e4567-e89b-12d3-a456-426614174000",
+			Title:       strings.Repeat("a", 101),
+			Description: "First Event",
+			StartTime:   now,
+			EndTime:     now.Add(time.Hour),
+			CreatedAt:   now,
+		},
+		{
+			ID:          "223e4567-e89b-12d3-a456-426614174001",
+			Title:       strings.Repeat("b", 101),
+			Description: "Second Event",
+			StartTime:   now.Add(2 * time.Hour),
+			EndTime:     now.Add(3 * time.Hour),
+			CreatedAt:   now,
+		},
+	}
+
+	s.mockService.EXPECT().
+		GetEvents(gomock.Any()).
+		Return(expectedEvents, nil).
+		Times(1)
+
+	req := httptest.NewRequest(http.MethodGet, "/events", nil)
+	w := httptest.NewRecorder()
+
+	s.handler.GetEvents(w, req)
+
+	resp := w.Result()
+	require.Equal(s.T(), http.StatusOK, resp.StatusCode)
+	require.Equal(s.T(), "application/json", resp.Header.Get("Content-Type"))
+	require.Contains(s.T(), w.Body.String(), expectedEvents[0].ID)
+	require.Contains(s.T(), w.Body.String(), expectedEvents[1].ID)
+	require.Contains(s.T(), w.Body.String(), "First Event")
+	require.Contains(s.T(), w.Body.String(), "Second Event")
+}
+
+func (s *HandlerTestSuite) TestGetEvents_EmptyList() {
+	s.mockService.EXPECT().
+		GetEvents(gomock.Any()).
+		Return([]internal.CreateEventResponse{}, nil).
+		Times(1)
+
+	req := httptest.NewRequest(http.MethodGet, "/events", nil)
+	w := httptest.NewRecorder()
+
+	s.handler.GetEvents(w, req)
+
+	resp := w.Result()
+	require.Equal(s.T(), http.StatusOK, resp.StatusCode)
+	require.Equal(s.T(), "application/json", resp.Header.Get("Content-Type"))
+	require.Equal(s.T(), "[]", w.Body.String())
+}
+
+func (s *HandlerTestSuite) TestGetEvents_ServiceError() {
+	s.mockService.EXPECT().
+		GetEvents(gomock.Any()).
+		Return(nil, internal.ErrInput).
+		Times(1)
+
+	req := httptest.NewRequest(http.MethodGet, "/events", nil)
+	w := httptest.NewRecorder()
+
+	s.handler.GetEvents(w, req)
+
+	resp := w.Result()
+	require.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
+	require.Contains(s.T(), w.Body.String(), "error getting events")
+}
+
 func TestHandlerTestSuite(t *testing.T) {
 	suite.Run(t, new(HandlerTestSuite))
 }

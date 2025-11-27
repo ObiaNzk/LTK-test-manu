@@ -64,7 +64,7 @@ func (s *Storage) GetEvents(ctx context.Context) ([]CreateEventResponse, error) 
 
 	for rows.Next() {
 		var event CreateEventResponse
-		if err := rows.Scan(&event.ID, &event.CreatedAt); err != nil {
+		if err := rows.Scan(&event.ID, &event.Title, &event.Description, &event.StartTime, &event.EndTime, &event.CreatedAt); err != nil {
 			return []CreateEventResponse{}, fmt.Errorf("scanning event: %w", err)
 		}
 

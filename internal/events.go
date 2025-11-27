@@ -59,3 +59,12 @@ func (s *Service) GetEventByID(ctx context.Context, id string) (CreateEventRespo
 
 	return event, nil
 }
+
+func (s *Service) GetEvents(ctx context.Context) ([]CreateEventResponse, error) {
+	events, err := s.storage.GetEvents(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting events: %w", err)
+	}
+
+	return events, nil
+}

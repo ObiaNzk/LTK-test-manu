@@ -12,11 +12,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//go:generate mockgen -destination=mocks/mock_events_service.go -package=mocks github.com/ObiaNzk/LTK-test-manu/cmd/api/handlers eventsService
+//go:generate mockgen -source=handler.go -destination=mocks/mock_events_service.go -package=mocks
 
 type eventsService interface {
 	CreateEvent(ctx context.Context, event internal.CreateEventRequest) (internal.CreateEventResponse, error)
 	GetEventByID(ctx context.Context, id string) (internal.CreateEventResponse, error)
+	GetEvents(ctx context.Context) ([]internal.CreateEventResponse, error)
 }
 
 type Handler struct {
@@ -144,6 +145,47 @@ func (h *Handler) GetEventByID(w http.ResponseWriter, r *http.Request) {
 		StartTime:   event.StartTime,
 		EndTime:     event.EndTime,
 		CreatedAt:   event.CreatedAt,
+	}
+
+	jsonResult, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "error creating json response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResult)
+}
+
+func (h *Handler) GetEvents(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	events, err := h.eventsService.GetEvents(ctx)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting events: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	type eventResponse struct {
+		ID          string    `json:"id"`
+		Title       string    `json:"title"`
+		Description string    `json:"description"`
+		StartTime   time.Time `json:"start_time"`
+		EndTime     time.Time `json:"end_time"`
+		CreatedAt   time.Time `json:"created_at"`
+	}
+
+	response := make([]eventResponse, 0, len(events))
+	for _, event := range events {
+		response = append(response, eventResponse{
+			ID:          event.ID,
+			Title:       event.Title,
+			Description: event.Description,
+			StartTime:   event.StartTime,
+			EndTime:     event.EndTime,
+			CreatedAt:   event.CreatedAt,
+		})
 	}
 
 	jsonResult, err := json.Marshal(response)
