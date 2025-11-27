@@ -15,9 +15,7 @@ func NewRouter(handler *handlers.Handler) *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	// Routes
-	r.Get("/hello", handler.HelloWorld)
 	r.Post("/events", handler.CreateEvent)
-	r.Get("/events", handler.HelloWorld)
 	r.Get("/events/{id}", handler.GetEventByID)
 
 	return r

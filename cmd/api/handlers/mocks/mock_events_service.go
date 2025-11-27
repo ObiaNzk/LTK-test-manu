@@ -70,17 +70,3 @@ func (mr *MockeventsServiceMockRecorder) GetEventByID(ctx, id any) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEventByID", reflect.TypeOf((*MockeventsService)(nil).GetEventByID), ctx, id)
 }
-
-// HelloWorld mocks base method.
-func (m *MockeventsService) HelloWorld() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HelloWorld")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// HelloWorld indicates an expected call of HelloWorld.
-func (mr *MockeventsServiceMockRecorder) HelloWorld() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HelloWorld", reflect.TypeOf((*MockeventsService)(nil).HelloWorld))
-}

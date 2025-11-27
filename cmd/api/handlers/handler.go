@@ -15,7 +15,6 @@ import (
 //go:generate mockgen -destination=mocks/mock_events_service.go -package=mocks github.com/ObiaNzk/LTK-test-manu/cmd/api/handlers eventsService
 
 type eventsService interface {
-	HelloWorld() string
 	CreateEvent(ctx context.Context, event internal.CreateEventRequest) (internal.CreateEventResponse, error)
 	GetEventByID(ctx context.Context, id string) (internal.CreateEventResponse, error)
 }
@@ -28,27 +27,6 @@ func NewHandler(service eventsService) *Handler {
 	return &Handler{
 		eventsService: service,
 	}
-}
-
-func (h *Handler) HelloWorld(w http.ResponseWriter, r *http.Request) {
-	type body struct {
-		Message string `json:"message" validate:"required"`
-	}
-
-	var payload body
-
-	if err := decodeBody(r, &payload); err != nil {
-		http.Error(w, fmt.Sprintf("Invalid JSON format: %s", err.Error()), http.StatusBadRequest)
-
-		return
-	}
-
-	defer r.Body.Close()
-
-	message := h.eventsService.HelloWorld()
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(message))
 }
 
 func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {

@@ -21,10 +21,6 @@ func NewService(storage storage) *Service {
 	}
 }
 
-func (s *Service) HelloWorld() string {
-	return "Hello, World!"
-}
-
 func (s *Service) CreateEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error) {
 	if event.Title == "" {
 		return CreateEventResponse{}, fmt.Errorf("title cannot be empty: %w", ErrInput)
