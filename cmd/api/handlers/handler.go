@@ -9,11 +9,15 @@ import (
 	"time"
 
 	"github.com/ObiaNzk/LTK-test-manu/internal"
+	"github.com/go-chi/chi/v5"
 )
+
+//go:generate mockgen -destination=mocks/mock_events_service.go -package=mocks github.com/ObiaNzk/LTK-test-manu/cmd/api/handlers eventsService
 
 type eventsService interface {
 	HelloWorld() string
 	CreateEvent(ctx context.Context, event internal.CreateEventRequest) (internal.CreateEventResponse, error)
+	GetEventByID(ctx context.Context, id string) (internal.CreateEventResponse, error)
 }
 
 type Handler struct {
@@ -126,6 +130,53 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_, _ = w.Write(jsonResult)
+}
+
+func (h *Handler) GetEventByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		http.Error(w, "empty event", http.StatusBadRequest)
+		return
+	}
+
+	event, err := h.eventsService.GetEventByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, internal.ErrNotFound) {
+			http.Error(w, "event not found", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, fmt.Sprintf("error getting event: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	response := struct {
+		ID          string    `json:"id"`
+		Title       string    `json:"title"`
+		Description string    `json:"description"`
+		StartTime   time.Time `json:"start_time"`
+		EndTime     time.Time `json:"end_time"`
+		CreatedAt   time.Time `json:"created_at"`
+	}{
+		ID:          event.ID,
+		Title:       event.Title,
+		Description: event.Description,
+		StartTime:   event.StartTime,
+		EndTime:     event.EndTime,
+		CreatedAt:   event.CreatedAt,
+	}
+
+	jsonResult, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "error creating json response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResult)
 }
 
 func decodeBody(r *http.Request, v interface{}) error {

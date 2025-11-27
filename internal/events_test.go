@@ -1,26 +1,42 @@
 package internal
 
 import (
-	"github.com/stretchr/testify/require"
+	"context"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
-//go:generate mockgen -destination=mocks/mock_service.go -package=mocks github.com/ObiaNzk/LTK-test-manu/internal ServiceInterface
+type mockStorage struct{}
+
+func (m *mockStorage) CreateEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error) {
+	return CreateEventResponse{}, nil
+}
+
+func (m *mockStorage) GetEvents(ctx context.Context) ([]CreateEventResponse, error) {
+	return []CreateEventResponse{}, nil
+}
+
+func (m *mockStorage) GetEventByID(ctx context.Context, id string) (CreateEventResponse, error) {
+	return CreateEventResponse{}, nil
+}
 
 type ServiceTestSuite struct {
 	suite.Suite
-	service *Service
+	mockStorage *mockStorage
+	service     *Service
 }
 
 func (s *ServiceTestSuite) SetupTest() {
-	s.service = NewService()
+	s.mockStorage = &mockStorage{}
+	s.service = NewService(s.mockStorage)
 }
 
 func (s *ServiceTestSuite) TestNewService() {
-	service := NewService()
+	service := NewService(s.mockStorage)
 	require.NotNil(s.T(), service)
+	require.NotNil(s.T(), service.storage)
 }
 
 func (s *ServiceTestSuite) TestHelloWorld() {

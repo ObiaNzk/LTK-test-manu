@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"github.com/ObiaNzk/LTK-test-manu/cmd/api/handlers"
@@ -18,6 +18,7 @@ func NewRouter(handler *handlers.Handler) *chi.Mux {
 	r.Get("/hello", handler.HelloWorld)
 	r.Post("/events", handler.CreateEvent)
 	r.Get("/events", handler.HelloWorld)
+	r.Get("/events/{id}", handler.GetEventByID)
 
 	return r
 }

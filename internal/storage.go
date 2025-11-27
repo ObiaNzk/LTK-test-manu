@@ -3,17 +3,20 @@ package internal
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
 
 type Storage struct {
-	db sql.DB
+	db *sql.DB
 }
 
-func NewStorage() *Storage {
-	return &Storage{}
+func NewStorage(db *sql.DB) *Storage {
+	return &Storage{
+		db: db,
+	}
 }
 
 func (s *Storage) CreateEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error) {
@@ -25,7 +28,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event CreateEventRequest) (Cr
 
 	defer trx.Rollback()
 
-	// this could be created from the DB
+	// Avoid extra work on db
 	id := uuid.NewString()
 	createdAt := time.Now().UTC()
 
@@ -69,4 +72,27 @@ func (s *Storage) GetEvents(ctx context.Context) ([]CreateEventResponse, error) 
 	}
 
 	return results, nil
+}
+
+func (s *Storage) GetEventByID(ctx context.Context, id string) (CreateEventResponse, error) {
+	query := "SELECT id, title, description, start_time, end_time, created_at FROM events WHERE id = $1"
+
+	var event CreateEventResponse
+	err := s.db.QueryRowContext(ctx, query, id).Scan(
+		&event.ID,
+		&event.Title,
+		&event.Description,
+		&event.StartTime,
+		&event.EndTime,
+		&event.CreatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return CreateEventResponse{}, fmt.Errorf("event not found: %w", ErrNotFound)
+		}
+		return CreateEventResponse{}, fmt.Errorf("getting event: %w", err)
+	}
+
+	return event, nil
 }

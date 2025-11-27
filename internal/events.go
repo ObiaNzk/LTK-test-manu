@@ -8,6 +8,7 @@ import (
 type storage interface {
 	CreateEvent(ctx context.Context, event CreateEventRequest) (CreateEventResponse, error)
 	GetEvents(ctx context.Context) ([]CreateEventResponse, error)
+	GetEventByID(ctx context.Context, id string) (CreateEventResponse, error)
 }
 
 type Service struct {
@@ -44,8 +45,21 @@ func (s *Service) CreateEvent(ctx context.Context, event CreateEventRequest) (Cr
 	response, err := s.storage.CreateEvent(ctx, event)
 
 	if err != nil {
-		return CreateEventResponse{}, fmt.Errorf("error creating event: %w", err)
+		return CreateEventResponse{}, fmt.Errorf("creating event: %w", err)
 	}
 
 	return response, nil
+}
+
+func (s *Service) GetEventByID(ctx context.Context, id string) (CreateEventResponse, error) {
+	if id == "" {
+		return CreateEventResponse{}, fmt.Errorf("empty id: %w", ErrInput)
+	}
+
+	event, err := s.storage.GetEventByID(ctx, id)
+	if err != nil {
+		return CreateEventResponse{}, fmt.Errorf("getting event: %w", err)
+	}
+
+	return event, nil
 }
