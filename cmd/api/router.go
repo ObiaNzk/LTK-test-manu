@@ -16,6 +16,8 @@ func NewRouter(handler *handlers.Handler) *chi.Mux {
 
 	// Routes
 	r.Get("/hello", handler.HelloWorld)
+	r.Post("/events", handler.CreateEvent)
+	r.Get("/events", handler.HelloWorld)
 
 	return r
 }

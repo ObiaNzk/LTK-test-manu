@@ -32,7 +32,7 @@ func (s *HandlerTestSuite) TearDownTest() {
 func (s *HandlerTestSuite) TestNewHandler() {
 	handler := NewHandler(s.mockService)
 	require.NotNil(s.T(), handler)
-	require.NotNil(s.T(), handler.helloWorldService)
+	require.NotNil(s.T(), handler.eventsService)
 }
 
 func (s *HandlerTestSuite) TestHelloWorld_Success() {
